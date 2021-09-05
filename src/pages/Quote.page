@@ -1,0 +1,296 @@
+<!--
+ * ===================================================================================
+ * File Name         : Quote.vfp
+ * Author           : yc.park
+ * Date            : 2021-08-29
+ * Tester           :
+ * Target           : Quote__c
+ * Description       : 렌탈견적서 화면
+ * Modification Log
+ * ===================================================================================
+ * Ver      Date            Author          Modification
+ * ===================================================================================
+ * 1.0      2021-08-29         yc.park        Create
+ * ===================================================================================
+-->
+<apex:page id="VisualforcePage"
+           controller = "RentalQuoteController"
+           standardStylesheets="false"
+           applyBodyTag="false"
+           applyHtmlTag="false"
+           sideBar="false"
+           showHeader="false"
+           contentType="text/html;charset=UTF-8"
+           language="ko"
+           renderAs="pdf"
+            >
+    <html>
+        <head>
+            <meta charset="UTF-8"/>
+            <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            <title>RentalQuote</title>
+            <style type="text/css">
+                body{
+                    font-family: Arial Unicode MS;
+                    font-size: 10px;
+                    width:98%;
+                    height:100%;
+                }
+
+                @page{
+                    size:A4 auto;
+                }
+                p{
+                    font-weight:bold;
+                    font-size: 15px;
+                }
+                table{
+                    width:100%;
+                    border: 1px solid black;
+                    border-collapse: collapse;
+                }
+                td{
+                    border: 1px solid black;
+                }
+                th{
+                    text-align:center;
+                    border: 1px solid black;
+                    background-color: #98c28d;
+                }
+                [id*=HSTable]{
+                    border:none;
+                    width:100%;
+                    height:50px;
+                }
+                [id*=HSTableLogo]{
+                    width:49%;
+                    height:30px;
+                }
+                [id*=HSTableQuoteNo]{
+                    width:39%;
+                    text-align:right;
+                    font-size:10px;
+                    padding-right:10%;
+                }
+
+                [id*=BSTitle]{
+                    border: 1px solid black;
+                    height: 25px;
+                    text-align :center;
+                    vertical-align:middle;
+                    font-size: 18px;
+                    font-weight:bold;
+                    padding : 2px;
+                }
+                [id*=BSSalesCustomTable]{
+                    font-weight:bold;
+                    margin-top:10px;
+                    border : none;
+                }
+
+                [id*=BSSalesCustom-c1]{
+                    width:15%;
+                    text-align: left;
+                    padding-left:20px;
+                    border: none;
+                }
+                [id*=BSSalesCustom-c2]{
+                    width:53%;
+                    text-align: left;
+                    border : none;
+                }
+                [id*=BSSalesCustom-c3]{
+                    width:30%;
+                    text-align: right;
+                    border: none;
+                }
+                [id*=BSQuoteLinItemUnit]{
+                    font-size:12px;
+                    font-weight:bold;
+                    text-align:right;
+                    font-weight: bold;
+                }
+                [id*=BSQuoteLineItemTable]{
+                    border: 1px solid black;
+                    border-collapse: collapse;
+                }
+            </style>
+        </head>
+        <body>
+            <!--header section(HS) : logo, customInfo, SalesInfo-->
+            <apex:form>
+                <!--HS : Logo, 견적제안 NO-->
+                <table id="HSTable">
+                    <tr>
+                        <td id="HSTableLogo" colspan="1" rowspan="1">
+                            <apex:image url="{!URLFOR($Resource.LotteRentalLogo)}" style="height:30px; width:150px"/>
+                        </td>
+                        <td id="HSTableQuoteNo" colspan="1" rowspan="1">
+                            견적제안 No : &nbsp;{! QuoteNo}
+                        </td>
+                        <td colspan="1" rowspan="1" style="width:10%; border:none;">
+
+                        </td>
+                    </tr>
+                </table>
+                <hr/>
+                <!--BS : 렌탈견적서-->
+                <div id="BSTitle">
+                     렌탈견적서
+                </div>
+                <!--BS : SalesAddress, CustomInfo-->
+                <table id="BSSalesCustomTable">
+                    <tr>
+                        <td id="BSSalesCustom-c1">고 객 명</td>
+                        <td id="BSSalesCustom-c2">{! customInfo.Name}</td>
+                        <td id="BSSalesCustom-c3"></td>
+                    </tr>
+                    <tr>
+                        <td id="BSSalesCustom-c1">담 당 자</td>
+                        <td id="BSSalesCustom-c2">{! customInfo.CustomerManager__c}</td>
+                        <td id="BSSalesCustom-c3">롯데렌탈(주) &nbsp;대표이사 김현수</td>
+                    </tr>
+                    <tr>
+                        <td id="BSSalesCustom-c1">Mobile</td>
+                        <td id="BSSalesCustom-c2">{! customInfo.CustomerMobile__c}</td>
+                        <td id="BSSalesCustom-c3">영업담당 &nbsp;{! salesAddress.Name}</td>
+                    </tr>
+                    <tr>
+                        <td id="BSSalesCustom-c1">Office</td>
+                        <td id="BSSalesCustom-c2">{! customInfo.CustomerPhone__c}</td>
+                        <td id="BSSalesCustom-c3">Mobile &nbsp;{! salesAddress.SalesMobile__c}</td>
+                    </tr>
+                    <tr>
+                        <td id="BSSalesCustom-c1">Fax</td>
+                        <td id="BSSalesCustom-c2">{! customInfo.CustomerFax__c}</td>
+                        <td id="BSSalesCustom-c3">Office &nbsp;{! salesAddress.SalesPhone__c}</td>
+                    </tr>
+                    <tr>
+                        <td id="BSSalesCustom-c1">E-mail</td>
+                        <td id="BSSalesCustom-c2">{! customInfo.CustomerEmail__c}</td>
+                        <td id="BSSalesCustom-c3">E-mail &nbsp;{! salesAddress.SalesEmail__c}</td>
+                    </tr>
+                    <tr>
+                        <td id="BSSalesCustom-c1">견 적 일</td>
+                        <td id="BSSalesCustom-c2" style="font-weight: initial;">{!QuoteDate}</td>
+                        <td id="BSSalesCustom-c3" style="font-weight: initial;">견적유효일 : &nbsp;{! quote.QuoteEffectiveDate__c}</td>
+                    </tr>
+                </table>
+                <hr/>
+            </apex:form>
+            <!--body section(BS) : QuoteLineItem, 제품사양, 기타사항, 특약사항, 렌탈발주서-->
+            <apex:form>
+                <!--BS 1. QuoteLineItem-->
+                <div id="BSQuoteLinItemUnit">(단위 : 원, VAT별도)</div>
+                <table id="BSQuoteLineItemTable">
+                    <tr>
+                        <th rowspan="2">상품명</th>
+                        <th rowspan="2">모 델 명</th>
+                        <th rowspan="2">수량</th>
+                        <th rowspan="1" colspan="2">계약기간</th>
+                        <th rowspan="2">월렌탈료<br/>(1대당)</th>
+                        <th rowspan="2">주렌탈료<br/>(1대당)</th>
+                        <th rowspan="2">총렌탈료 합계</th>
+                    </tr>
+                    <tr>
+                        <th rowspan="1">개월</th>
+                        <th rowspan="1">주</th>
+                    </tr>
+                    <apex:repeat value="{!listRentalInfo}" var="ri">
+                        <tr>
+                            <td rowspan="1" colspan="1" style="text-align:center;">{! ri.RentalItem__c}</td>
+                            <td rowspan="1" colspan="1" style="text-align:center;">{! ri.Name}</td>
+                            <td rowspan="1" colspan="1" style="text-align:center;">{! ri.Quantity__c}</td>
+                            <td rowspan="1" colspan="1" style="text-align:center;">{! ri.MonthContractTerm__c}</td>
+                            <td rowspan="1" colspan="1" style="text-align:center;">{! ri.WeekContractTerm__c}</td>
+                            <td rowspan="1" colspan="1" style="text-align:right;">{! ri.PerMonthRentalFee__c}</td>
+                            <td rowspan="1" colspan="1" style="text-align:right;">{! ri.PerWeekRentalFee__c}</td>
+                            <td rowspan="1" colspan="1" style="text-align:right;">{! ri.TotalRentalFee__c}</td>
+                        </tr>
+                    </apex:repeat>
+                    <tr>
+                        <td rowspan="1" colspan="2" style="text-align:center;">합계</td>
+                        <td rowspan="1" colspan="1" style="text-align:center;">{! TotalQuantity}</td>
+                        <td rowspan="1" colspan="1" style="text-align:center;">{! TotalMonthTerm}</td>
+                        <td rowspan="1" colspan="1" style="text-align:center;">{! TotalWeekTerm}</td>
+                        <td rowspan="1" colspan="1" style="text-align:right;">{! TotalPerMonthRentalFee}</td>
+                        <td rowspan="1" colspan="1" style="text-align:right;">{! TotalPerWeekRentalFee}</td>
+                        <td rowspan="1" colspan="1" style="text-align:right;">{! TotalRentalFeeAmount}</td>
+                    </tr>
+
+                </table>
+                <!--BS 2. 제품사양,기타사항, 특약사항 -->
+                <p>※ 제품사양</p>
+                <table>
+                    <tr>
+                        <th rowspan="2">모델명</th>
+                        <th rowspan="1">제품별 주요사항</th>
+                    </tr>
+                    <tr>
+                        <th rowspan="1">기본상세사양</th>
+                    </tr>
+                    <apex:repeat value="{!listRentalInfo}" var="ri">
+                        <tr>
+                            <td style="text-align:center;">{!ri.RentalItem__c}[{! ri.Name}]</td>
+                            <td style="text-align:left;">{!ri.ProductDetail__c}</td>
+                        </tr>
+                    </apex:repeat>
+                </table>
+                <p>※ 기타사항</p>
+                <div style="height: 70px; border:1px solid black;">
+                    {!quote.Etc__c}
+                </div>
+                <p>※ 특약사항</p>
+                <div style="height: 150px; border:1px solid black;">
+                        {!QuoteSpecial}
+                </div>
+                <br/>
+                <!--BS 2. 렌탈발주서 -->
+                <table>
+                    <tr>
+                        <th rowspan="1" colspan="2">렌탈 발주서</th>
+                    </tr>
+                    <tr>
+                        <td rowspan="1" colspan="2" style="text-align:center; font-weight:bold">상기 물품을 렌탈하고자 아래와 같이 발주합니다.</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="1" colspan="1" style="width:49%; height:29%; font-weight:bold;vertical-align:top;" >
+                            <div style="margin-bottom:5px;">◆ 발주 사항</div>
+                            <div style="margin-bottom:5px;">☛ 렌탈신청일: 20&nbsp;&nbsp;&nbsp;&nbsp;년 &nbsp;&nbsp;&nbsp;&nbsp;월 &nbsp;&nbsp;&nbsp;&nbsp;일</div>
+                            <div style="margin-bottom:5px;">☛ 렌탈신청자: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(인)&nbsp;&nbsp;/ 연락처:</div>
+                        </td>
+                        <td rowspan="3" colspan="1" style="width:49% height:100%; font-weight:bold; vertical-align:top;">
+                            <div style="margin-bottom:5px;">◆ 기타 사항</div>
+                            <div style="margin-bottom:5px;">▷ 렌탈 신청은 좌측의 발주사항에 내용을 상세시 기록후,</div>
+                            <div style="margin-bottom:5px;">&nbsp;&nbsp;&nbsp;&nbsp;메일 또는 FAX로 보내주시기 바랍니다.</div>
+                            <br/><br/>
+                            <div style="margin-bottom:5px;">&nbsp;&nbsp;&nbsp;&nbsp; (MAIL ADD:&nbsp;&nbsp;&nbsp;{!salesAddress.SalesEmail__c}</div>
+                            <div style="margin-bottom:5px;">&nbsp;&nbsp;&nbsp;&nbsp; FAX :&nbsp;&nbsp;&nbsp;{!salesAddress.SalesEmail__c})</div>
+                            <div style="margin-bottom:5px; font-weight:initial;">▷ 렌탈료는 매월 세금계산서로 발행되어 결제 담당자의 이메일로 전송하</div>
+                            <div style="margin-bottom:5px; font-weight:initial;">며, 30일 이내에 당사 계좌로 납부하셔야 합니다.</div>
+                            <div style="margin-bottom:5px; font-weight:initial;">▷ 렌탈장비 발주후, 계약 취소시 중도해지에 따른 정산렌탈료가 부과됩</div>
+                            <div style="margin-bottom:5px; font-weight:initial;">니다.</div>
+                            <br/><br/><br/><br/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td rowspan="1" colspan="1" style="width:49%; height:49%; font-weight:bold; vertical-align:top;">
+                            <div style="margin-bottom:5px;">☞ 배송희망일: 20 년 월 일</div>
+                            <div style="margin-bottom:5px;">☛ 물품인수자: &nbsp;&nbsp;&nbsp;/연락처:</div>
+                            <div style="margin-bottom:5px;">☛ 렌탈물건사용부서명:</div>
+                            <div style="margin-bottom:5px;">☛ 물품배송 상세주소(건물명,층):</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td rowspan="1" colspan="1" style="width:49%; height:20%; font-weight:bold; vertical-align:top;">
+                            ☛ 렌탈료 결제담당자: &nbsp;&nbsp; /연락처:<br/>
+                            ☛ 전자세금계산서 전송이메일:<br/>
+                        </td>
+                    </tr>
+                </table>
+            </apex:form>
+        <hr/>
+        </body>
+    </html>
+</apex:page>
